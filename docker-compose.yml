@@ -1,0 +1,76 @@
+version: "3"
+services:
+
+  zookeeper:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile
+    container_name: zookeeper
+    volumes:
+      - ./docker/config:/var/config/kafka
+    ports:
+      - 2181:2181
+    command: "/var/apps/kafka/bin/zookeeper-server-start.sh /var/config/kafka/zookeeper.properties"
+
+  broker:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile
+    container_name: broker
+    volumes:
+      - ./docker/config:/var/config/kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - 9092:9092
+    command: "/var/apps/kafka/bin/kafka-server-start.sh /var/config/kafka/server.properties"
+
+  authorization-service:
+    image: clojure
+    container_name: authorization-service
+    depends_on:
+      - broker
+    working_dir: /var/app
+    volumes:
+      - .:/var/app
+    command: [ "lein", "authorization" ]
+
+  antifraud-service:
+    image: clojure
+    container_name: antifraud-service
+    depends_on:
+      - broker
+    working_dir: /var/app
+    volumes:
+      - .:/var/app
+    command: [ "lein", "antifraud" ]
+
+  notification-service:
+    image: clojure
+    container_name: notification-service
+    depends_on:
+      - broker
+    working_dir: /var/app
+    volumes:
+      - .:/var/app
+    command: [ "lein", "notification" ]
+
+  payment-service:
+    image: clojure
+    container_name: payment-service
+    depends_on:
+      - broker
+    working_dir: /var/app
+    volumes:
+      - .:/var/app
+    command: [ "lein", "payment" ]
+
+  purchase-service:
+    image: clojure
+    container_name: purchase-service
+    depends_on:
+      - broker
+    working_dir: /var/app
+    volumes:
+      - .:/var/app
+    command: [ "lein", "purchase" ]
