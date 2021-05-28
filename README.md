@@ -4,7 +4,14 @@ A Clojure library designed to ... well, that part is up to you.
 
 ## Usage
 
-FIXME
+```
+docker-compose up
+```
+
+Make purchase
+```
+docker-compose up purchase-service
+```
 
 ## License
 
